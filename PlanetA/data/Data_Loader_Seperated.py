@@ -10,7 +10,7 @@ from skimage.exposure import match_histograms
 
 
 class RemoteSenseData(Dataset):
-    def __init__(self, root, transform=None, val=False, fp_modifier=10):
+    def __init__(self, root, transform=None, val=False, fp_modifier=5):
         # Sample List
         self.file_names = []
         self.true_pix = 0
@@ -52,7 +52,6 @@ class RemoteSenseData(Dataset):
         temp_path = path / 'B01.tif'
         img = io.imread(temp_path)
         w, h = img.shape
-        del img
         grids = product(range(0, h - h % patch_size, patch_size),
                        range(0, w - w % patch_size, patch_size))
         boxes = []
@@ -63,12 +62,12 @@ class RemoteSenseData(Dataset):
 
     @staticmethod
     def _S2_img_read(path, pre=True):
-        # bands = ['B01.tif', 'B02.tif', 'B03.tif', 'B04.tif',
-        #          'B05.tif', 'B06.tif', 'B07.tif', 'B8A.tif',
-        #          'B08.tif', 'B09.tif', 'B10.tif', 'B11.tif',
-        #          'B12.tif']
-        bands = ['B02.tif', 'B03.tif', 'B04.tif', 'B06.tif',
-                 'B8A.tif', 'B08.tif', 'B09.tif', 'B12.tif']
+        bands = ['B01.tif', 'B02.tif', 'B03.tif', 'B04.tif',
+                 'B05.tif', 'B06.tif', 'B07.tif', 'B8A.tif',
+                 'B08.tif', 'B09.tif', 'B10.tif', 'B11.tif',
+                 'B12.tif']
+        # bands = ['B02.tif', 'B03.tif', 'B04.tif', 'B06.tif',
+        #          'B8A.tif', 'B08.tif', 'B09.tif', 'B12.tif']
         if pre:
             cat = np.stack([io.imread(path / band) for band in bands])
         else:
@@ -80,7 +79,6 @@ class RemoteSenseData(Dataset):
                 post = io.imread(post)
                 post = match_histograms(post, pre)
                 posts.append(post)
-            del pre; del post
             cat = np.stack(posts)
         return cat
 
@@ -137,10 +135,11 @@ class RemoteSenseData(Dataset):
         S2_post  = self.process_MS(self._tile(self._S2_img_read(post, pre=False), box))
         label    = self._tile(np.expand_dims(io.imread(label)-1, 0), box)
 
-        sample = {'time_1': {'S1': S1_pre, 'S2': S2_pre},
-                  'time_2': {'S1': S1_post, 'S2': S2_post},
+        sample = {'A': {'S1': S1_pre, 'S2': S2_pre},
+                  'B': {'S1': S1_post, 'S2': S2_post},
                   'label': label,
                   'idx': idx,
+                  'box': box
                   }
 
         if self.transform:
@@ -153,10 +152,10 @@ class RandomFlip(object):
     """Flip randomly the images in a sample, right to left side."""
 
     def __call__(self, sample):
-        I1, I2, I1_b, I2_b, label = sample['time_1']['S2'], \
-                                    sample['time_2']['S2'], \
-                                    sample['time_1']['S1'], \
-                                    sample['time_2']['S1'], \
+        I1, I2, I1_b, I2_b, label = sample['A']['S2'], \
+                                    sample['B']['S2'], \
+                                    sample['A']['S1'], \
+                                    sample['B']['S1'], \
                                     sample['label']
 
         if random.random() > 0.5:
@@ -165,10 +164,11 @@ class RandomFlip(object):
             I1_b = I1_b[:, :, ::-1].copy()
             I2_b = I2_b[:, :, ::-1].copy()
             label = label[:, :, ::-1].copy()
-            sample = {'time_1': {'S1': I1_b, 'S2': I1},
-                      'time_2': {'S1': I2_b, 'S2': I2},
+            sample = {'A': {'S1': I1_b, 'S2': I1},
+                      'B': {'S1': I2_b, 'S2': I2},
                       'label': label,
                       'idx': sample['idx'],
+                      'box': sample['box']
                       }
         return sample
 
@@ -176,10 +176,10 @@ class RandomRot(object):
     """Rotate randomly the images in a sample."""
 
     def __call__(self, sample):
-        I1, I2, I1_b, I2_b, label = sample['time_1']['S2'], \
-                                    sample['time_2']['S2'], \
-                                    sample['time_1']['S1'], \
-                                    sample['time_2']['S1'], \
+        I1, I2, I1_b, I2_b, label = sample['A']['S2'], \
+                                    sample['B']['S2'], \
+                                    sample['A']['S1'], \
+                                    sample['B']['S1'], \
                                     sample['label']
 
         n = random.randint(0, 3)
@@ -194,10 +194,11 @@ class RandomRot(object):
             I2_b = np.rot90(I2_b, n, axes=(1, 2)).copy()
             label = sample['label']
             label = np.rot90(label, n, axes=(1, 2)).copy()
-            sample = {'time_1': {'S1': I1_b, 'S2': I1},
-                      'time_2': {'S1': I2_b, 'S2': I2},
+            sample = {'A': {'S1': I1_b, 'S2': I1},
+                      'B': {'S1': I2_b, 'S2': I2},
                       'label': label,
                       'idx': sample['idx'],
+                      'box': sample['box']
                       }
         return sample
 

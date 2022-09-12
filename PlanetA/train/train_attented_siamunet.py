@@ -118,8 +118,8 @@ def save_model(exp_dir, epoch, net_name, model, optimizer, best_val_loss, is_new
 
 def train(net_name):
     NUM_EPOCHS = 30
-    DATA_PATH_TRAIN = '/Users/choimindong/src/Geo/dataset_training'
-    DATA_PATH_VAL = '/Users/choimindong/src/Geo/dataset_val'
+    DATA_PATH_TRAIN = '/dataset_training'
+    DATA_PATH_VAL = '/dataset_val'
     NET_NAME = net_name
 
     # device = torch.device(f'cuda:{0}' if torch.cuda.is_available() else 'cpu')
@@ -183,7 +183,7 @@ def train(net_name):
                        optimizer=optimizer,
                        best_val_loss=F1_score,
                        is_new_best=is_new_best,
-                       exp_dir=Path('/Users/choimindong/src/Geo/result'))
+                       exp_dir=Path('/result'))
 
 
 if __name__ == '__main__':

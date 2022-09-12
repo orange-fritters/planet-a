@@ -6,8 +6,8 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 from PlanetA.data.f1_score import f1_score
-from PlanetA.data.Data_Loader_Stacked import create_data_loaders
-from PlanetA.model.SNUNet import SNUNet_ECAM
+from PlanetA.data.Data_Loader_Seperated import create_data_loaders
+from PlanetA.model.mm_SNUNet import SNUNet_ECAM
 
 warnings.filterwarnings('ignore')
 
@@ -16,30 +16,38 @@ def train_epoch(model, data_loader, optimizer, loss_type, gpu):
     model.train()
     len_loader = len(data_loader)
     total_loss = 0.
-
+    for_val = 0.
     for iter, batch in enumerate(data_loader):
         # inserted multi-modality here
         if gpu:
-            pre = Variable(batch['pre'].float()).cuda()
-            post = Variable(batch['post'].float()).cuda()
+            S2_A = Variable(batch['A']['S2'].float()).cuda()
+            S2_B = Variable(batch['B']['S2'].float()).cuda()
+            S1_A = Variable(batch['A']['S1'].float()).cuda()
+            S1_B = Variable(batch['B']['S1'].float()).cuda()
             label = torch.squeeze(Variable(batch['label'])).cuda()
         else:
-            pre = Variable(batch['pre'].float())
-            post = Variable(batch['post'].float())
+            S2_A = Variable(batch['A']['S2'].float())
+            S2_B = Variable(batch['B']['S2'].float())
+            S1_A = Variable(batch['A']['S1'].float())
+            S1_B = Variable(batch['B']['S1'].float())
             label = torch.squeeze(Variable(batch['label']))
 
         optimizer.zero_grad()
-        output = model(pre, post)
+        output = model(S2_A, S2_B, S1_A, S1_B)
         loss = loss_type(output, label.long())
         loss.backward()
         optimizer.step()
 
+        for_val += f1_score(torch.max(output.data, 1)[1], label)
         total_loss += loss.item()
         if iter % 10 == 0:
             print(f'Loss :{total_loss / (iter + 1):.3f} Iter : {iter}/{len_loader}')
-
+            print(f'F1 Score:{for_val / (iter + 1):.3f}')
     total_loss /= len_loader
+    for_val /= len_loader
     print(f'Loss :{total_loss:.3f} Iter : {len_loader}/{len_loader}')
+    print(f'Train F1 :{for_val:.3f}')
+
     return total_loss
 
 
@@ -50,15 +58,19 @@ def validate(model, data_loader, gpu):
 
     for iter, batch in enumerate(data_loader):
         if gpu:
-            pre = Variable(batch['pre'].float()).cuda()
-            post = Variable(batch['post'].float()).cuda()
+            S2_A = Variable(batch['A']['S2'].float()).cuda()
+            S2_B = Variable(batch['B']['S2'].float()).cuda()
+            S1_A = Variable(batch['A']['S1'].float()).cuda()
+            S1_B = Variable(batch['B']['S1'].float()).cuda()
             label = torch.squeeze(Variable(batch['label'])).cuda()
         else:
-            pre = Variable(batch['pre'].float())
-            post = Variable(batch['post'].float())
+            S2_A = Variable(batch['A']['S2'].float())
+            S2_B = Variable(batch['B']['S2'].float())
+            S1_A = Variable(batch['A']['S1'].float())
+            S1_B = Variable(batch['B']['S1'].float())
             label = torch.squeeze(Variable(batch['label']))
 
-        output = model(pre, post)
+        output = model(S2_A, S2_B, S1_A, S1_B)
         _, predicted = torch.max(output.data, 1)
         loss = f1_score(predicted, label)
         total_loss += loss
@@ -81,17 +93,16 @@ def save_model(exp_dir, epoch, net_name, model, optimizer, best_val_loss):
 
 
 def train(net_name, gpu):
-    NUM_EPOCHS = 30
+    NUM_EPOCHS = 20
     DATA_PATH_TRAIN = '/Users/choimindong/src/Geo/dataset_training'
     DATA_PATH_VAL = '/Users/choimindong/src/Geo/dataset_val'
     NET_NAME = net_name
 
-    model = SNUNet_ECAM(in_ch=10, out_ch=2)
+    model = SNUNet_ECAM()
     train_loader = create_data_loaders(data_path=DATA_PATH_TRAIN,
                                        transform=True,
                                        shuffle=True)
     val_loader = create_data_loaders(data_path=DATA_PATH_VAL,
-                                     transform=False,
                                      val=True,
                                      batch_size=1)
     weights = torch.FloatTensor(train_loader.dataset.weights)
@@ -145,7 +156,7 @@ def train(net_name, gpu):
                        net_name=NET_NAME,
                        optimizer=optimizer,
                        best_val_loss=F1_score,
-                       exp_dir=Path('/Users/choimindong/src/Geo/result'))
+                       exp_dir=Path('/result'))
 
 
 if __name__ == '__main__':

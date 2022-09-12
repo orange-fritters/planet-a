@@ -11,7 +11,7 @@ from skimage.exposure import match_histograms
 
 
 class RemoteSenseData(Dataset):
-    def __init__(self, root, transform=None, val=False, fp_modifier=1):
+    def __init__(self, root, transform=None, val=False, fp_modifier=5):
         # Sample List
         self.file_names = []
         self.true_pix = 0
