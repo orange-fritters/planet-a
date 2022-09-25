@@ -44,9 +44,6 @@ Our team built a model similar to above one except for multi-modality
          └── save_reconstruction.py 
 ```
 
-## Model Structure
-![model](../img/model.png)
-
 ## Details
 
 ### Data Processing
