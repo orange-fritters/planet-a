@@ -126,7 +126,7 @@ of the model was approximately 39277970. In addition, in order to derive the fin
 data was zero padded in a multiple of 96 and split into patches, and then input into the model to print out the final map.
 
 ### Result Example
-![model](../img/output.png)
+![model]<img src=../img/output.png width="650" height="325" />
 
 ## TODO List
 - Arg Parser be updated soon!
