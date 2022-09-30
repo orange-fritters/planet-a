@@ -2,8 +2,7 @@
 
 ### 🏆🏆🏆 **1st Place** 🏆🏆🏆
 
-The final submitted PyTorch code for the **Planet A** Challenge
-
+The final PyTorch code submssion for the **Planet A** Challenge.
 Additional README.md available inside the Geo and Climate folder
 
 ## Field
@@ -15,7 +14,7 @@ Additional README.md available inside the Geo and Climate folder
 Geological disasters such as earthquakes, volcanoes, or landslides make buildings or roads in downtown areas lost, 
 or buildings are newly built in the process of disaster recovery. 
 The purpose of the ***Planet A: Geological Disaster Section*** is to develop a deep learning model that can detect 
-changes in urban areas using satellite images
+changes in urban areas using satellite images.
 Specifically, The geological disaster problem is to detect changes in five cities with unknown answers through  15 types
 of channel data (various satellite bandwidth data) taken from 19 cities. [[A1]](##Reference) To solve the problem, We 
 applied the multimodality of [[A3]](##Reference) to the Combination of Siamese network and NestedUNet structure 
@@ -29,7 +28,7 @@ it is important to detect and track ARs.
 The purpose of the ***Planet A: Climate Science Section*** is to develop a deep learning model to detect and segment the
 atmospheric river and typhoon through machine learning and deep learning.
 Specifically, The climate science problem is to detect atmospheric river with 16 types of climate data.
-Our team built a model similar to above one except for multi-modality
+Our team built a model similar to above one except for multi-modality.
 
 ## Requirements
 - [PyTorch](https://pytorch.org/) (An open source deep learning platform)
