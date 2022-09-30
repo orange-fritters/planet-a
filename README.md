@@ -3,7 +3,7 @@
 ### 🏆🏆🏆 **1st Place** 🏆🏆🏆
 
 The final PyTorch code submssion for the **Planet A** Challenge.
-Additional README.md available inside the Geo and Climate folder
+**Additional README** available inside the Geo and Climate folder
 
 ## Field
 - [Geological Disaster](##Geo/README.md)
