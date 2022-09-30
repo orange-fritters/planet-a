@@ -2,7 +2,7 @@
 
 ### 🏆🏆🏆 **1st Place** 🏆🏆🏆
 
-The final PyTorch code submssion for the **Planet A** Challenge.
+The final PyTorch code submssion for the **Planet A** Challenge. <br>
 **Additional README** available inside the Geo and Climate folder
 
 ## Field
