@@ -1,4 +1,4 @@
-certifi==2022.6.15.1
+certifi==2023.7.22
 cftime==1.6.1
 charset-normalizer==2.1.1
 cycler==0.11.0
